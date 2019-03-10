@@ -5,37 +5,14 @@
   <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-  <!-- <h1>service worker register</h1> -->
-  <h1>service worker activate</h1>
+  <h1>service worker lifecyle</h1>
   <img src="static/cat.jpg" width="400px">
   <script type="text/javascript">
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
         navigator.serviceWorker.register('/sw.js').then(function(registration) {
           // Registration was successful
-          console.log('ServiceWorker register successful', registration);
-          if (registration.installing) {
-            console.log('ServiceWorker is Installing');
-          }
-          if (registration.waiting) {
-            console.log('ServiceWorker is Waiting');
-          }
-          if (registration.active) {
-            console.log('ServiceWorker is Active');
-          }
-
-          // 发送消息给 sw
-          const controller = navigator.serviceWorker.controller;
-          console.log('serviceWorker instance', controller);
-          controller && controller.postMessage("this message is from page");
-
-          // 接收来自 sw的消息
-          navigator.serviceWorker.addEventListener('message', function (e) {
-            // this message is from sw.js, to page
-            console.log('[page]:', e.data); 
-          });
-
-
+          console.log('ServiceWorker register successful with scope', registration.scope);
         }, function(err) {
           // registration failed :(
           console.log('ServiceWorker registration failed: ', err);
