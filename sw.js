@@ -5,22 +5,40 @@ var urlsToCache = [
 ];
 
 self.addEventListener('install', function(event) {
-  // Perform install steps
+  console.log("install");
   // self.skipWaiting();
 
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(function(cache) {
-        console.log('Opened cache');
         return cache.addAll(urlsToCache);
       })
   );
+});
+
+self.addEventListener('activate', function(event) {
+  console.log("activate");
+  event.waitUntil(
+    // Get all the cache names
+    caches.keys().then(function(cacheNames) {
+      return Promise.all(
+        // Get all the items that are stored under a different cache name than the current one
+        cacheNames.filter(function(cacheName) {
+          return cacheName != CACHE_NAME;
+        }).map(function(cacheName) {
+          // Delete the items
+          return caches.delete(cacheName);
+        })
+      ); // end Promise.all()
+    }) // end caches.keys()
+  ); // end event.waitUntil()
 });
 
 self.addEventListener('fetch', function(event) {
   event.respondWith(
     caches.match(event.request)
       .then(function(response) {
+        console.log("Fetch request for:", event.request.url);
         // Cache hit - return response
         if (response) {
           return response;
@@ -55,24 +73,6 @@ self.addEventListener('fetch', function(event) {
         );
       })
     );
-});
-
-
-self.addEventListener('activate', function(event) {  
-  event.waitUntil(
-    // Get all the cache names
-    caches.keys().then(function(cacheNames) {
-      return Promise.all(
-        // Get all the items that are stored under a different cache name than the current one
-        cacheNames.filter(function(cacheName) {
-          return cacheName != CACHE_NAME;
-        }).map(function(cacheName) {
-          // Delete the items
-          return caches.delete(cacheName);
-        })
-      ); // end Promise.all()
-    }) // end caches.keys()
-  ); // end event.waitUntil()
 });
 
 
